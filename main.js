@@ -1,8 +1,6 @@
 const lark = require("@larksuiteoapi/node-sdk");
 var axios = require("axios");
 const keep_alive = require("./keep_alive.js");
-const EventDB = aircode.db.table("event");
-const MsgTable = aircode.db.table("msg"); // table use to save record of conversation
 
 const LARK_APP_ID = process.env.APPID || ""; // Larksuite appid 
 const LARK_APP_SECRET = process.env.SECRET || ""; // larksuite app secret
