@@ -105,6 +105,9 @@ async function cmdProcess(cmdParams) {
     case "/clear": 
       await cmdClear(cmdParams.sessionId, cmdParams.messageId);
       break;
+    case "/смена": // Добавляем новый кейс для команды /смена
+      await cmdSmena(cmdParams.messageId);
+      break;
     default:
       await cmdHelp(cmdParams.messageId);
       break;
@@ -119,6 +122,7 @@ async function cmdHelp(messageId) {
 Usage:
     /clear    remove conversation history for get a new, clean, bot context.
     /help     get more help message
+    /смена    узнать, кто сейчас на смене
   `
   await reply(messageId, helpText);
 }
@@ -127,6 +131,11 @@ Usage:
 async function cmdClear(sessionId, messageId) {
   await clearConversation(sessionId)
   await reply(messageId, "✅ All history removed");
+}
+
+// команда /смена
+async function cmdSmena(messageId) {
+  await reply(messageId, "Сейчас на смене: Руслан");
 }
 
 // get openai reply
