@@ -1,4 +1,3 @@
-const aircode = require("aircode");
 const lark = require("@larksuiteoapi/node-sdk");
 var axios = require("axios");
 const keep_alive = require("./keep_alive.js");
