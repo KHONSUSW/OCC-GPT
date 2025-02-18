@@ -62,41 +62,31 @@ app.get("/", (req, res) => {
 });
 
 app.post("/webhook", async (req, res) => {
-  const { type, challenge, event } = req.body;
+  const { header, event } = req.body;
+  const eventType = header?.event_type;
 
-  // Логируем весь запрос для отладки
+  // Логируем запрос
   logger("Full request body:", JSON.stringify(req.body, null, 2));
 
-  if (type === "url_verification") {
-    logger("Received url_verification request");
-    return res.json({ challenge });
-  }
+  if (eventType === "im.message.receive_v1") {
+    const messageId = event.message.message_id;
+    const userInput = JSON.parse(event.message.content);
 
-  if (type === "event_callback") {
-    switch (event.type) {
-      case "im.message.receive_v1":
-        const messageId = event.message.message_id;
-        const userInput = JSON.parse(event.message.content);
-        logger("Received message:", userInput);
+    logger("Received message:", userInput);
 
-        const text = userInput.text.trim();
-        if (text.startsWith("/")) {
-          await cmdProcess({ action: text, messageId });
-        } else {
-          await reply(messageId, "Я понимаю только команды. Введите /help для списка команд.");
-        }
-        break;
-
-      default:
-        logger("Unhandled event type:", event.type);
-        break;
+    const text = userInput.text.trim();
+    if (text.startsWith("/")) {
+      await cmdProcess({ action: text, messageId });
+    } else {
+      await reply(messageId, "Я понимаю только команды. Введите /help для списка команд.");
     }
   } else {
-    logger("Unknown event type:", type);
+    logger("Unknown event type:", eventType);
   }
 
   res.status(200).send("OK");
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
