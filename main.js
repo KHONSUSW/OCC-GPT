@@ -15,8 +15,8 @@ const client = new lark.Client({
 const app = express();
 app.use(express.json());
 
-function logger(param) {
-  console.error("[CF]", param);
+function logger(...params) {
+  console.error("[CF]", ...params);
 }
 
 async function reply(messageId, content) {
@@ -34,7 +34,7 @@ async function reply(messageId, content) {
 }
 
 async function cmdProcess(cmdParams) {
-  switch (cmdParams && cmdParams.action) {
+  switch (cmdParams?.action) {
     case "/help":
       await cmdHelp(cmdParams.messageId);
       break;
@@ -64,24 +64,32 @@ app.get("/", (req, res) => {
 app.post("/webhook", async (req, res) => {
   const { type, challenge, event } = req.body;
 
-  // Логируем входящий запрос
-  logger("Received request:", JSON.stringify(req.body, null, 2));
+  // Логируем весь запрос для отладки
+  logger("Full request body:", JSON.stringify(req.body, null, 2));
 
   if (type === "url_verification") {
     logger("Received url_verification request");
     return res.json({ challenge });
   }
 
-  if (type === "event_callback" && event.type === "im.message.receive_v1") {
-    const messageId = event.message.message_id;
-    const userInput = JSON.parse(event.message.content);
-    logger("Received message:", userInput);
+  if (type === "event_callback") {
+    switch (event.type) {
+      case "im.message.receive_v1":
+        const messageId = event.message.message_id;
+        const userInput = JSON.parse(event.message.content);
+        logger("Received message:", userInput);
 
-    const text = userInput.text.trim();
-    if (text.startsWith("/")) {
-      await cmdProcess({ action: text, messageId });
-    } else {
-      await reply(messageId, "Я понимаю только команды. Введите /help для списка команд.");
+        const text = userInput.text.trim();
+        if (text.startsWith("/")) {
+          await cmdProcess({ action: text, messageId });
+        } else {
+          await reply(messageId, "Я понимаю только команды. Введите /help для списка команд.");
+        }
+        break;
+
+      default:
+        logger("Unhandled event type:", event.type);
+        break;
     }
   } else {
     logger("Unknown event type:", type);
