@@ -3,7 +3,7 @@ const express = require("express");
 
 const LARK_APP_ID = process.env.APPID || "";
 const LARK_APP_SECRET = process.env.SECRET || "";
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 const client = new lark.Client({
   appId: LARK_APP_ID,
@@ -57,39 +57,26 @@ async function cmdSmena(messageId) {
   await reply(messageId, "Сейчас на смене: Руслан");
 }
 
-async function handleReply(userInput, messageId) {
-  const question = userInput.text.replace("@_user_1", "");
-  logger("question: " + question);
-  const action = question.trim();
-  if (action.startsWith("/")) {
-    return await cmdProcess({ action, messageId });
-  }
-  await reply(messageId, "Я понимаю только команды. Введите /help для списка команд.");
-  return { code: 0 };
-}
-
-// Обработчик для корневого URL
 app.get("/", (req, res) => {
   res.send("Bot is running!");
 });
 
-// Обработчик для вебхука
 app.post("/webhook", async (req, res) => {
   const { type, challenge, event } = req.body;
 
-  // Обработка проверки URL (url_verification)
+  // Логируем входящий запрос
+  logger("Received request:", JSON.stringify(req.body, null, 2));
+
   if (type === "url_verification") {
     logger("Received url_verification request");
     return res.json({ challenge });
   }
 
-  // Обработка события im.message.receive_v1
   if (type === "event_callback" && event.type === "im.message.receive_v1") {
     const messageId = event.message.message_id;
     const userInput = JSON.parse(event.message.content);
     logger("Received message:", userInput);
 
-    // Обработка команды
     const text = userInput.text.trim();
     if (text.startsWith("/")) {
       await cmdProcess({ action: text, messageId });
@@ -101,7 +88,6 @@ app.post("/webhook", async (req, res) => {
   res.status(200).send("OK");
 });
 
-// Запуск сервера
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
