@@ -9,7 +9,7 @@ const client = new lark.Client({
   appId: LARK_APP_ID,
   appSecret: LARK_APP_SECRET,
   disableTokenCache: false,
-  domain: lark.Domain.Lark
+  domain: lark.Domain.Lark,
 });
 
 const app = express();
@@ -25,8 +25,8 @@ async function reply(messageId, content) {
       path: { message_id: messageId },
       data: {
         content: JSON.stringify({ text: content }),
-        msg_type: "text"
-      }
+        msg_type: "text",
+      },
     });
   } catch (e) {
     logger("send message to Lark error", e, messageId, content);
@@ -88,11 +88,6 @@ app.post("/webhook", async (req, res) => {
     await handleReply(userInput, messageId);
   }
 
-  res.status(200).send("OK");
-});
-
-  // Обработка других событий
-  logger("Received event:", req.body);
   res.status(200).send("OK");
 });
 
