@@ -68,10 +68,26 @@ async function handleReply(userInput, messageId) {
   return { code: 0 };
 }
 
+// Обработчик для корневого URL
 app.get("/", (req, res) => {
   res.send("Bot is running!");
 });
 
+// Обработчик для вебхука
+app.post("/webhook", (req, res) => {
+  const { type, challenge } = req.body;
+
+  if (type === "url_verification") {
+    logger("Received url_verification request");
+    return res.json({ challenge });
+  }
+
+  // Обработка других событий
+  logger("Received event:", req.body);
+  res.status(200).send("OK");
+});
+
+// Запуск сервера
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
