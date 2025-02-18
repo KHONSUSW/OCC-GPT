@@ -74,13 +74,22 @@ app.get("/", (req, res) => {
 });
 
 // Обработчик для вебхука
-app.post("/webhook", (req, res) => {
-  const { type, challenge } = req.body;
+app.post("/webhook", async (req, res) => {
+  const { type, challenge, event } = req.body;
 
   if (type === "url_verification") {
     logger("Received url_verification request");
     return res.json({ challenge });
   }
+
+  if (type === "event_callback" && event.type === "im.message.receive_v1") {
+    const messageId = event.message.message_id;
+    const userInput = JSON.parse(event.message.content);
+    await handleReply(userInput, messageId);
+  }
+
+  res.status(200).send("OK");
+});
 
   // Обработка других событий
   logger("Received event:", req.body);
