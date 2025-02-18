@@ -83,6 +83,8 @@ app.post("/webhook", async (req, res) => {
     } else {
       await reply(messageId, "Я понимаю только команды. Введите /help для списка команд.");
     }
+  } else {
+    logger("Unknown event type:", type);
   }
 
   res.status(200).send("OK");
