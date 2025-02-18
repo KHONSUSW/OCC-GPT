@@ -77,15 +77,25 @@ app.get("/", (req, res) => {
 app.post("/webhook", async (req, res) => {
   const { type, challenge, event } = req.body;
 
+  // Обработка проверки URL (url_verification)
   if (type === "url_verification") {
     logger("Received url_verification request");
     return res.json({ challenge });
   }
 
+  // Обработка события im.message.receive_v1
   if (type === "event_callback" && event.type === "im.message.receive_v1") {
     const messageId = event.message.message_id;
     const userInput = JSON.parse(event.message.content);
-    await handleReply(userInput, messageId);
+    logger("Received message:", userInput);
+
+    // Обработка команды
+    const text = userInput.text.trim();
+    if (text.startsWith("/")) {
+      await cmdProcess({ action: text, messageId });
+    } else {
+      await reply(messageId, "Я понимаю только команды. Введите /help для списка команд.");
+    }
   }
 
   res.status(200).send("OK");
