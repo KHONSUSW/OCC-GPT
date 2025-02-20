@@ -192,32 +192,43 @@ async function handleButtonClick(messageId, userId, value) {
 
 // Обработка вебхука
 app.post("/webhook", async (req, res) => {
-  const { header, event } = req.body;
-  const eventType = header?.event_type;
-
-  logger("Full request body:", JSON.stringify(req.body, null, 2));
-
-  if (eventType === "im.message.receive_v1") {
+    const { event } = req.body;
+    if (!event || !event.message) return res.sendStatus(400);
+    
+    const text = JSON.parse(event.message.content).text;
     const messageId = event.message.message_id;
-    const userInput = JSON.parse(event.message.content);
     const userId = event.sender.sender_id.user_id;
 
-    logger("Received message:", userInput);
-
-    const text = userInput.text.trim();
-    if (text.startsWith("/")) {
-      await cmdProcess({ action: text.split(' ')[0], messageId, userId, text });
-    } else if (userInput.buttons) {
-      await handleButtonClick(messageId, userId, userInput.buttons[0].value);
-    } else {
-      await reply(messageId, "Я понимаю только команды. Введите /help для списка команд.");
+    switch (text.split(" ")[0]) {
+        case "/help":
+            await cmdHelp(messageId);
+            break;
+        case "/смена":
+            await cmdSmena(messageId);
+            break;
+        case "/ответственные":
+            await cmdResponsible(messageId);
+            break;
+        case "/запрос":
+            await cmdRequest(messageId, userId, text);
+            break;
+        case "/помощник":
+            await cmdHelper(messageId);
+            break;
+        case "/задача":
+            await cmdTask(messageId, userId, text);
+            break;
+        case "/admin":
+            await cmdAdmin(messageId, userId, text);
+            break;
+        default:
+            await reply(messageId, "Неизвестная команда. Используйте /help для списка команд.");
+            break;
     }
-  } else {
-    logger("Unknown event type:", eventType);
-  }
 
-  res.status(200).send("OK");
+    res.sendStatus(200);
 });
+
 
 // Запуск сервера
 app.listen(PORT, () => {
