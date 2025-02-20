@@ -104,13 +104,17 @@ async function cmdTask(messageId, userId, text) {
 
 // Команда /admin
 async function cmdAdmin(messageId, userId, text) {
-  console.log("Admin command invoked by user:", userId); // Логирование userId
   if (!adminUsers.includes(userId)) {
     await reply(messageId, "У вас нет прав администратора.");
     return;
   }
 
-  const [command, ...args] = text.split(' ');
+  // Убираем "/admin" из текста команды
+  const commandText = text.replace("/admin", "").trim();
+
+  // Разделяем оставшуюся часть команды на аргументы
+  const [command, ...args] = commandText.split(' ');
+
   switch (command) {
     case "добавить_ответственного":
       const [shiftType, name] = args;
