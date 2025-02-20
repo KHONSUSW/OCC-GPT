@@ -19,7 +19,7 @@ app.use(express.json());
 let responsibleEmployees = { day: [], night: [] }; // Ответственные за запросы
 let shiftSchedule = {}; // График смен
 let tasks = []; // Задачи
-let adminUsers = []; // Админы
+let adminUsers = ["e5cfg8f8"]; // Админы
 let requests = []; // Запросы
 let approvals = []; // Запросы на апрув
 
