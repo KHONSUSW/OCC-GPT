@@ -3,7 +3,7 @@ const express = require("express");
 
 const LARK_APP_ID = process.env.APPID || "";
 const LARK_APP_SECRET = process.env.SECRET || "";
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
 const client = new lark.Client({
   appId: LARK_APP_ID,
