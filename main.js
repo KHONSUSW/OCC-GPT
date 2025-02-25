@@ -3,7 +3,7 @@ const express = require("express");
 
 const LARK_APP_ID = process.env.APPID || "";
 const LARK_APP_SECRET = process.env.SECRET || "";
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 const client = new lark.Client({
   appId: LARK_APP_ID,
@@ -702,4 +702,6 @@ app.post("/webhook", async (req, res) => {
 
 
 // Запуск сервера
-app.listen
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
